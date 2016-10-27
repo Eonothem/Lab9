@@ -28,6 +28,8 @@
 
 ;; Example:
 (define ADD-0 (make-add 2 2))
+(define ADD-1 (make-add 2 'x))
+(define ADD-2 (make-add ADD-0 2))
 
 ;; Template:
 #; (define (add-fn a)
@@ -44,6 +46,8 @@
 
 ;; Example:
 (define MUL-0 (make-mul 2 2))
+(define MUL-1 (make-mul 'x 2))
+(define MUL-2 (make-mul 2 MUL-0))
 
 ;; Template:
 #; (define (mul-fn m)
@@ -51,9 +55,14 @@
      ... (expression-fn (mul-arg1 m)))
 
 
+<<<<<<< HEAD
 ;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
+=======
+
+;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
+>>>>>>> origin/master
 ;;Problem 2
-;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
+;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
 
 ;; numeric?: Expression -> Boolean
 ;; Consumes:
