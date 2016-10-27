@@ -49,3 +49,31 @@
 #; (define (mul-fn m)
      ... (expression-fn (mul-arg0 m))
      ... (expression-fn (mul-arg1 m)))
+
+
+;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
+;;Problem 3:
+;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
+
+;; A NumericExpression is either a
+;; Number
+;; (make-add NumericExpression NumericExpression)
+;; (make-mult NumericExpression NumericExpression)
+
+(define (evaluate-expression expr)
+  (local [(define (evaluate-add a)
+            (+ (evaluate-expression (add-arg0 a))
+               (evaluate-expression (add-arg1 a))))
+          (define (evaluate-mul m)
+            (* (evaluate-expression (mult-arg0 m))
+               (evaluate-expression (mult-arg1 m))))]
+    (cond [(numeric? expr) expr]
+          [(make-add? expr) (evaluate-add expr)]
+          [(make-mult? expr) (evaluate-mul expr)])))
+
+(check-expect (evaluate-expression 4) 4)
+(check-expect (evaluate-expression (make-add 5 5)) 10)
+(check-expect (evaluate-expression (make-mul 4 2)) 8)
+(check-expect (evaluate-expression (make-add 12 (make-mult 4 2)) 20))
+(check-expect (evaluate-expression (make-add (make-add 1 1) (make-add 2 2)) 6))
+        
