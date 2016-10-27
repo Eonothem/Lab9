@@ -16,7 +16,7 @@
      (cond [(number? expr) ...]
            [(symbol? expr) ...]
            [(add? expr) ... (add-fn expr)]
-           [(mul? expr) ... (add-fn expr)]))
+           [(mul? expr) ... (mult-fn expr)]))
 
 (define-struct add [arg0 arg1])
 ;; An AddCall is a (make-add arg0 arg1)
@@ -51,6 +51,33 @@
      ... (expression-fn (mul-arg1 m)))
 
 
+;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
+;;Problem 2
+;;ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ
+
+;; numeric?: Expression -> Boolean
+;; Consumes:
+;;   - Expression expr: the inputed Expresion
+;; Produces: whether or not exp is numeric
+(check-expect (numeric? 5) #true)
+(check-expect (numeric? 'l) #false)
+(check-expect (numeric? ADD-0) #true)
+(check-expect (numeric? MUL-0) #true)
+
+(define (numeric? expr)
+     (cond [(number? expr) #true]
+           [(symbol? expr) #false]
+           [(add? expr)
+            (local [(define (add-numeric? a)
+                      (and (numeric? (add-arg0 a))
+                           (numeric? (add-arg1 a))))]
+            (add-numeric? expr))]
+           [(mul? expr)
+            (local [(define (mult-numeric? m)
+  (and (numeric? (mul-arg0 m))
+       (numeric? (mul-arg1 m))))]
+            (mult-numeric? expr))]))
+
 ;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
 ;;Problem 3:
 ;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
@@ -76,4 +103,3 @@
 (check-expect (evaluate-expression (make-mul 4 2)) 8)
 (check-expect (evaluate-expression (make-add 12 (make-mult 4 2)) 20))
 (check-expect (evaluate-expression (make-add (make-add 1 1) (make-add 2 2)) 6))
-        
