@@ -5,33 +5,47 @@
 ;;Problem 1:
 ;;=============================================================================
 
-;; An Expresion is one of:
-;;  - AtomicValue
-;;  - [FunctionCallOf X]
+;; An Expression is one of:
+;;  - Number
+;;  - Symbol
+;;  - (make-add Expression Expression)
+;;  - (make-mul Expression Expression) 
 
-;;Template:
+;; Template:
 #; (define (expression-fn expr)
-     (cond [(struct? expr) ... (X-fn expr)]
-           [(atom? expr) ...]))
+     (cond [(number? expr) ...]
+           [(symbol? expr) ...]
+           [(add? expr) ... (add-fn expr)]
+           [(mul? expr) ... (add-fn expr)]))
 
-;; An AtomicValue is any Expresion which statisfies the atom? predicate
+(define-struct add [arg0 arg1])
+;; An AddCall is a (make-add arg0 arg1)
+;; Interpertation:
+;;  - Expression arg0: the first Expression to be added in the 
+;;                     addition problem being represented
+;;  - Expression arg1: the second Expression to be added in the
+;;                     addition problem being represented
 
-;; A [FunctionCallOf X] is a (make-X arg1 arg2),
-;;  where X is the structure representation of the function being called
-;;  Interpertation:
-;;   - Expression arg1: the first arguement passed to X when X is executed
-;;   - expression arg2: the first arguement passed to X when X is executed
+;; Example:
+(define ADD-0 (make-add 2 2))
 
-;;Examples:
-(define-struct add [arg1 arg2])
-(define-struct mul [arg1 arg2])
-(define FC-0 (make-mul 3 10))
-(define FC-1 (make-add (make-mul 3 3) (make-mul 4 4)))
-(define FC-2 (make-add (make-mul 'x 'x) (make-mul 4 4)))
-(define FC-3 (make-mul 0.5 (make-mul 3 3)))
+;; Template:
+#; (define (add-fn a)
+     ... (expression-fn (add-arg0 a))
+     ... (expression-fn (add-arg1 a)))
 
-;;Template:
-#; (define (function-call-fn fc)
-     ... (X-arg1 fc)
-     ... (X-arg2 fc))
+(define-struct mul [arg0 arg1])
+;; A MulCall is a (make-add arg0 arg1)
+;; Interpertation:
+;;  - Expression arg0: the first Expression to be added in the 
+;;                     multiplication problem being represented
+;;  - Expression arg1: the second Expression to be added in the
+;;                     multiplication problem being represented
 
+;; Example:
+(define MUL-0 (make-mul 2 2))
+
+;; Template:
+#; (define (mul-fn m)
+     ... (expression-fn (mul-arg0 m))
+     ... (expression-fn (mul-arg1 m)))
