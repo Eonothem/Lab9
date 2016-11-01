@@ -95,14 +95,48 @@
             (+ (evaluate-expression (add-arg0 a))
                (evaluate-expression (add-arg1 a))))
           (define (evaluate-mul m)
-            (* (evaluate-expression (mult-arg0 m))
-               (evaluate-expression (mult-arg1 m))))]
-    (cond [(numeric? expr) expr]
-          [(make-add? expr) (evaluate-add expr)]
-          [(make-mult? expr) (evaluate-mul expr)])))
+            (* (evaluate-expression (mul-arg0 m))
+               (evaluate-expression (mul-arg1 m))))]
+    (cond [(number? expr) expr]
+          [(add? expr) (evaluate-add expr)]
+          [(mul? expr) (evaluate-mul expr)])))
 
 (check-expect (evaluate-expression 4) 4)
 (check-expect (evaluate-expression (make-add 5 5)) 10)
 (check-expect (evaluate-expression (make-mul 4 2)) 8)
-(check-expect (evaluate-expression (make-add 12 (make-mult 4 2)) 20))
-(check-expect (evaluate-expression (make-add (make-add 1 1) (make-add 2 2)) 6))
+(check-expect (evaluate-expression (make-add 12 (make-mul 4 2))) 20)
+(check-expect (evaluate-expression (make-add (make-add 1 1) (make-add 2 2))) 6)
+
+;;🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋
+;;Problem 4
+;;🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋
+
+;; subst: Symbol Number Expression
+;; Consumes:
+;;  - Symbol      var: the Symbol for which val is to be substituted
+;;  - Numver      val: the Number to be substituted for var
+;;  - Expression expr: the Expresion in which val is to be substituted for var
+;; Produces: a copy of expr with all Symbols matching var are replaced with val
+
+(check-expect (subst 'x 2 (make-mul 'x 'y))
+              (make-mul 2 'y))
+(check-expect (subst 'x 4 (make-add (make-mul 3 'x) 
+                                    (make-mul 'x 4))) 
+              (make-add (make-mul 3 4) 
+                        (make-mul 4 4)))
+(check-expect 
+ (evaluate-expression 
+  (subst 'x 4 (make-add (make-mul 3 'x) 
+                        (make-mul 'x 4)))) 
+ 28)
+
+(define (subst var val expr)
+  (cond [(number? expr) expr]
+           [(symbol? expr)
+            (if (symbol=? expr var)
+                val
+                expr)]
+           [(add? expr) (make-add (subst var val (add-arg0 expr))
+                                  (subst var val (add-arg1 expr)))]
+           [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
+                                  (subst var val (mul-arg1 expr)))]))
