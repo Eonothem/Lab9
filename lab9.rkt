@@ -333,7 +333,7 @@
 
 
 
-#|
+
 (check-expect (evaluate-with-defs 3 (list FN1)) 3)
 (check-expect (evaluate-with-defs (make-add 3 4)
                                   (list FN1))
@@ -344,9 +344,16 @@
 (check-expect (evaluate-with-defs (make-function-application 'f 9)
                                   (list FN1))
               12)
-(check-expect (evaluate-with-defs (make-function-application 'k 3) (list FN1 FN3 FN4 FN5) (* 9 18)
-(check-error (evaluate-with-defs (make-function-application 'g 9) (list FN1)))
-
-
-
-|#
+(check-expect (evaluate-with-defs (make-function-application 'k 3)
+                                  (list FN1 FN3 FN4 FN5))
+              (* 9 18))
+(check-error (evaluate-with-defs (make-function-application 'g 9)
+                                    (list FN1))
+             "input must not contain undefined functions: (make-function-application 'g 9)")
+(check-error (evaluate-with-defs (make-add 1
+                                              (make-function-application 'g 9))
+                                    (list FN1))
+             "input must not contain undefined functions: (make-function-application 'g 9)")
+(check-error (evaluate-with-defs (make-function-application 'f 'x)
+                                    (list FN1))
+             "input must be a numeric expression: 'x")
