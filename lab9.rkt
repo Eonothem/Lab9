@@ -113,13 +113,17 @@
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
           [(mul? expr) (evaluate-mul expr)]
-          [(not (numeric? expr) (error "input must be a numeric expression: " expr))])))
+          [(not (numeric? expr)) (error "input must be a numeric expression: "
+                                       expr)])))
 
 (check-expect (evaluate-expression 4) 4)
 (check-expect (evaluate-expression (make-add 5 5)) 10)
 (check-expect (evaluate-expression (make-mul 4 2)) 8)
 (check-expect (evaluate-expression (make-add 12 (make-mul 4 2))) 20)
 (check-expect (evaluate-expression (make-add (make-add 1 1) (make-add 2 2))) 6)
+(check-error (evaluate-expression 'x) "input must be a numeric expression: 'x")
+(check-error (evaluate-expression (make-add 1 'x))
+             "input must be a numeric expression: 'x")
 
 ;;🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋
 ;;Problem 4
@@ -202,9 +206,14 @@
 
 (define FN3 (make-function-definition 'h 'u (make-function-application 'f 'u)))
 
-(define FN4 (make-function-definition 'i 'v (make-add (make-mul 'v 'v) (make-mul 'v 'v))))
+(define FN4 (make-function-definition 'i 'v (make-add (make-mul 'v 'v)
+                                                      (make-mul 'v 'v))))
 
-(define FN5 (make-function-definition 'k 'w (make-mul (make-function-application 'h 'w) (make-function-application 'i 'w))))
+(define FN5
+  (make-function-definition 'k
+                            'w
+                            (make-mul (make-function-application 'h 'w)
+                                      (make-function-application 'i 'w))))
 
 
 ;;===================================================================
