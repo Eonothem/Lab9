@@ -239,7 +239,7 @@
 (check-expect (evaluate-with-one-def (make-add 3 4) FN1) 7)
 (check-expect (evaluate-with-one-def (make-mul 3 4) FN1) 12)
 (check-expect (evaluate-with-one-def (make-function-application 'f 9) FN1) 12)
-(check-expect (evaluate-with-one-def (make-function-application 'g 9) FN1) 'error)
+(check-error (evaluate-with-one-def (make-function-application 'g 9) FN1))
 
 (define (evaluate-with-one-def expr def)
   (local [(define (evaluate-add a)
