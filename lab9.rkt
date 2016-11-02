@@ -10,7 +10,7 @@
 ;;  - Symbol
 ;;  - (make-add Expression Expression)
 ;;  - (make-mul Expression Expression)
-;;  - (make-function-application String Expression)
+;;  - (make-function-application Symbol Expression)
 
 ;; Template:
 #; (define (expression-fn expr)
@@ -143,14 +143,14 @@
            [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
                                   (subst var val (mul-arg1 expr)))]))
 
-;;
+;;***************************************************************************
 ;;Problem 5
-;;
+;;***************************************************************************
 
 (define-struct function-application [name arg])
 ;; An FunctionApplication is a (make-function-application name arg)
 ;; Interpertation:
-;;  - Symbol name:    the name of the function
+;;  - Symbol    name: the name of the function
 ;;  - Expression arg: the Expression being operated on
 
 ;; Example:
