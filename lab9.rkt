@@ -154,6 +154,26 @@
 ;;  - Expression arg: the Expression being operated on
 
 ;; Example:
-(define FN-APP1 (make-function-application g 2))
+(define FN-APP1 (make-function-application 'g 2))
 (define FN-APP2 (make-function-application 'f (make-add 1 1)))
 
+;(make-function-definition 'f 'x (make-add 3 'x))
+
+;;Problem 8
+(define evaluate-with-one-def (expression functiondef)
+  (local [(define (evaluate-add a)
+            (+ (evaluate-with-one-def (add-arg0 a))
+               (evaluate-with-one-def (add-arg1 a))))
+          (define (evaluate-mul m)
+            (* (evaluate-with-one-def (mul-arg0 m))
+               (evaluate-with-one-def (mul-arg1 m))))]
+    (cond [(number? expr) expr]
+          [(add? expr) (evaluate-add expr)]
+          [(mul? expr) (evaluate-mul expr)]
+          [(function-application? expr)
+           (if (eq? (function-application-name expr) (function-definition-fn functiondef))
+               (subst (function-definition-param functiondef)
+                      (function-application-arg expr)
+                      (function-definition-body functiondef))
+               (evaluate-with-one-def expr))])))
+ 
