@@ -21,7 +21,7 @@
            [(function-application? expr) ... (function-application-fn expr)]))
 
 (define-struct add [arg0 arg1])
-;; An AddCall is a (make-add arg0 arg1)
+;; An AddApplication is a (make-add arg0 arg1)
 ;; Interpertation:
 ;;  - Expression arg0: the first Expression to be added in the 
 ;;                     addition problem being represented
@@ -39,7 +39,7 @@
      ... (expression-fn (add-arg1 a)))
 
 (define-struct mul [arg0 arg1])
-;; A MulCall is a (make-add arg0 arg1)
+;; A MulApplication is a (make-add arg0 arg1)
 ;; Interpertation:
 ;;  - Expression arg0: the first Expression to be added in the 
 ;;                     multiplication problem being represented
@@ -87,10 +87,21 @@
 ;;Problem 3:
 ;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
 
-;; A NumericExpression is either a
-;; Number
-;; (make-add NumericExpression NumericExpression)
-;; (make-mult NumericExpression NumericExpression)
+;; A NumericExpression is one of:
+;;  - Number
+;;  - (make-add NumericExpression NumericExpression)
+;;  - (make-mult NumericExpression NumericExpression)
+
+;; evaluate-with-one-def: Expression FunctionDefinition -> Expression
+;; Consumes:
+;;  - Expression expr: the Expression being evaluated
+;;  - FunctionDefinition def: the FunctionDefinition according to which 
+;;                            any FunctionApplication in expr with a  
+;;                            matching name is to be evaluated
+;; Produces: expr, with all instances of AddApplications replaced
+;;           with the sum of their evaluated arg0 and arg1 portions,
+;;           and all instances of MulApplications  replaced with the 
+;;           product of their evaluated arg0 and arg1 portions
 
 (define (evaluate-expression expr)
   (local [(define (evaluate-add a)
@@ -101,7 +112,8 @@
                (evaluate-expression (mul-arg1 m))))]
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
-          [(mul? expr) (evaluate-mul expr)])))
+          [(mul? expr) (evaluate-mul expr)]
+          [(not (numeric? expr) (error "input must be a numeric expression: " expr))])))
 
 (check-expect (evaluate-expression 4) 4)
 (check-expect (evaluate-expression (make-add 5 5)) 10)
@@ -113,7 +125,7 @@
 ;;Problem 4
 ;;🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋🌋
 
-;; subst: Symbol Number Expression
+;; subst: Symbol Number -> Expression
 ;; Consumes:
 ;;  - Symbol      var: the Symbol for which val is to be substituted
 ;;  - Numver      val: the Number to be substituted for var
@@ -154,21 +166,30 @@
 ;;  - Expression arg: the Expression being operated on
 
 ;; Example:
-(define FN-APP1 (make-function-application g 2))
+(define FN-APP1 (make-function-application 'g 2))
 (define FN-APP2 (make-function-application 'f (make-add 1 1)))
 
+;;Template:
+#; (define (function-application-fun def)
+     ... (function-application-name def)
+     ... (function-application-arg def))
 
 ;;-------------------------------------------------------------------
 ;;Problem 6
 ;;-------------------------------------------------------------------
 
-(define-struct function-definition [fn param body])
+(define-struct function-definition [name param body])
 ;; An FunctionDefinition is a (make-function-definition fn-name param-name arg)
 ;; Interpertation:
-;;  - Symbol       fn: the name of the function being defined
+;;  - Symbol     name: the name of the function being defined
 ;;  - Symbol    param: the name of the function's parameter
 ;;  - Expression body: the body of the function
 
+;;Template:
+#; (define (function-definition-fun def)
+     ... (function-definition-name def)
+     ... (function-definition-param def)
+     ... (function-definition-body def))
 
 ;;===================================================================
 ;;Problem 7
@@ -179,29 +200,45 @@
 
 (define FN2 (make-function-definition 'g 'x (make-mul 3 'x)))
 
-(define FN3 (make-function-definition 'h 'u (function-application 'f 'u)))
+(define FN3 (make-function-definition 'h 'u (make-function-application 'f 'u)))
 
 (define FN4 (make-function-definition 'i 'v (make-add (make-mul 'v 'v) (make-mul 'v 'v))))
 
-(define FN5 (make-function-definition 'k 'w (make-mul (function-application 'h 'w) (function-application 'i 'w))))
+(define FN5 (make-function-definition 'k 'w (make-mul (make-function-application 'h 'w) (make-function-application 'i 'w))))
 
 
-
+;;===================================================================
 ;;Problem 8
-(define evaluate-with-one-def (expression functiondef)
+;;===================================================================
+
+;; evaluate-with-one-def: Expression FunctionDefinition -> Expression
+;; Consumes:
+;;  - Expression expr: the Expression being evaluated
+;;  - FunctionDefinition def: the FunctionDefinition according to which 
+;;                            any FunctionApplication in expr with a  
+;;                            matching name is to be evaluated
+;; Produces: expr, with all instances of FunctionApplications with names
+;;           matching def evaulated with their arg substituted for any
+;;           Symbol matching def's param, all instances of AddApplications
+;;           replaced with the sum of their evaluated arg0 and arg1 portions,
+;;           and all instances of MulApplications  replaced with the product
+;;           of their evaluated arg0 and arg1 portions
+
+(define (evaluate-with-one-def expr def)
   (local [(define (evaluate-add a)
             (+ (evaluate-with-one-def (add-arg0 a))
                (evaluate-with-one-def (add-arg1 a))))
           (define (evaluate-mul m)
             (* (evaluate-with-one-def (mul-arg0 m))
-               (evaluate-with-one-def (mul-arg1 m))))]
+               (evaluate-with-one-def (mul-arg1 m))))
+          (define (evaluate-fn-app app)
+            (if (eq? (function-application-name expr) (function-definition-name def))
+               (evaluate-with-one-def (subst (function-definition-param def)
+                                             (function-application-arg expr)
+                                             (function-definition-body def)))
+               (evaluate-with-one-def expr)))]
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
           [(mul? expr) (evaluate-mul expr)]
-          [(function-application? expr)
-           (if (eq? (function-application-name expr) (function-definition-fn functiondef))
-               (subst (function-definition-param functiondef)
-                      (function-application-arg expr)
-                      (function-definition-body functiondef))
-               (evaluate-with-one-def expr))])))
- 
+          [(function-application? expr) (evaluate-fn-app expr)])))
+
