@@ -70,18 +70,16 @@
 (check-expect (numeric? MUL-0) #true)
 
 (define (numeric? expr)
-     (cond [(number? expr) #true]
+  (local [(define (add-numeric? a)
+            (and (numeric? (add-arg0 a))
+                 (numeric? (add-arg1 a))))
+          (define (mult-numeric? m)
+            (and (numeric? (mul-arg0 m))
+                 (numeric? (mul-arg1 m))))]
+       (cond [(number? expr) #true]
            [(symbol? expr) #false]
-           [(add? expr)
-            (local [(define (add-numeric? a)
-                      (and (numeric? (add-arg0 a))
-                           (numeric? (add-arg1 a))))]
-            (add-numeric? expr))]
-           [(mul? expr)
-            (local [(define (mult-numeric? m)
-  (and (numeric? (mul-arg0 m))
-       (numeric? (mul-arg1 m))))]
-            (mult-numeric? expr))]))
+           [(add? expr) (add-numeric? expr)]
+           [(mul? expr) (mult-numeric? expr)])))
 
 ;;💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯💯
 ;;Problem 3:
