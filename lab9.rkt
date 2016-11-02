@@ -155,7 +155,10 @@
            [(add? expr) (make-add (subst var val (add-arg0 expr))
                                   (subst var val (add-arg1 expr)))]
            [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
-                                  (subst var val (mul-arg1 expr)))]))
+                                  (subst var val (mul-arg1 expr)))]
+           [(function-application? expr)
+            (make-function-application (function-application-name expr)
+                                       (subst (function-application-arg)))]))
 
 ;;*******************************************************************
 ;;Problem 5
