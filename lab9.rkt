@@ -303,11 +303,14 @@
                (evaluate-with-defs (mul-arg1 m) defs)))
           (define (evaluate-fn-app app)
             (local [(define MATCH
-                      (ormap (λ (def)
-                               (if (eq? (function-definition-name def)
-                                        (function-application-name app))
-                                   def
-                                   #false))))]
+                      (foldl (λ (def last)
+                               (cond [(function-definition? last) last]
+                                     [(eq? (function-definition-name def)
+                                           (function-application-name app))
+                                      def]
+                                   [else #false]))
+                             #false
+                             defs))]
               (if (false? MATCH)
                   (error "input must not contain undefined functions: "  expr)
                   (evaluate-with-defs
