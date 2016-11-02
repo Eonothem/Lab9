@@ -92,7 +92,7 @@
 
 ;; evaluate-with-one-def: Expression FunctionDefinition -> Expression
 ;; Consumes:
-;;  - Expression expr: the Expression being evaluated
+;;  - Expression        expr: the Expression being evaluated
 ;;  - FunctionDefinition def: the FunctionDefinition according to which 
 ;;                            any FunctionApplication in expr with a  
 ;;                            matching name is to be evaluated
@@ -222,15 +222,15 @@
 
 ;; evaluate-with-one-def: Expression FunctionDefinition -> Expression
 ;; Consumes:
-;;  - Expression expr: the Expression being evaluated
+;;  - Expression        expr: the Expression being evaluated
 ;;  - FunctionDefinition def: the FunctionDefinition according to which 
 ;;                            any FunctionApplication in expr with a  
 ;;                            matching name is to be evaluated
-;; Produces: expr, with all instances of FunctionApplications with names
+;; Produces: expr, with all instances of FunctionApplication with names
 ;;           matching def evaulated with their arg substituted for any
-;;           Symbol matching def's param, all instances of AddApplications
+;;           Symbol matching def's param, all instances of AddApplication
 ;;           replaced with the sum of their evaluated arg0 and arg1 portions,
-;;           and all instances of MulApplications  replaced with the product
+;;           and all instances of MulApplication replaced with the product
 ;;           of their evaluated arg0 and arg1 portions
 
 
@@ -263,3 +263,42 @@
           [(not (numeric? expr)) (error "input must be a numeric expression: "
                                        expr)])))
 
+;;===================================================================
+;;Problem 9
+;;===================================================================
+
+;; evaluate-with-defs: Expression FunctionDefinition -> Expression
+;; Consumes:
+;;  - Expression                  expr: the Expression being evaluated
+;;  - [ListOf FunctionDefinition] defs: the FunctionDefinitions according to  
+;;                                      which any FunctionApplication in expr  
+;;                                      with a matching name is to be evaluated
+;; Produces: expr, with all instances of FunctionApplication with names
+;;           matching those of FunctionDefinition in defs evaulated with
+;;           their arg substituted for any Symbol matching def's param, 
+;;           all instances of AddApplication replaced with the sum of their 
+;;           evaluated arg0 and arg1 portions, and all instances of 
+;;           MulApplications  replaced with the product of their evaluated
+;;           arg0 and arg1 portions
+
+(define (evaluate-with-defs expr def)
+  (local [(define (evaluate-add a)
+            (+ (evaluate-with-one-def (add-arg0 a) def)
+               (evaluate-with-one-def (add-arg1 a) def)))
+          (define (evaluate-mul m)
+            (* (evaluate-with-one-def (mul-arg0 m) def)
+               (evaluate-with-one-def (mul-arg1 m) def)))
+          (define (evaluate-fn-app app)
+            (if (eq? (function-application-name expr)
+                     (function-definition-name def))
+               (evaluate-with-one-def (subst (function-definition-param def)
+                                             (function-application-arg expr)
+                                             (function-definition-body def))
+                                      def)
+               (error "input must not contain undefined functions: "  expr)))]
+    (cond [(number? expr) expr]
+          [(add? expr) (evaluate-add expr)]
+          [(mul? expr) (evaluate-mul expr)]
+          [(function-application? expr) (evaluate-fn-app expr)]
+          [(not (numeric? expr)) (error "input must be a numeric expression: "
+                                       expr)])))
