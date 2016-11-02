@@ -233,19 +233,23 @@
 
 (define (evaluate-with-one-def expr def)
   (local [(define (evaluate-add a)
-            (+ (evaluate-with-one-def (add-arg0 a))
-               (evaluate-with-one-def (add-arg1 a))))
+            (+ (evaluate-with-one-def (add-arg0 a) def)
+               (evaluate-with-one-def (add-arg1 a) def)))
           (define (evaluate-mul m)
-            (* (evaluate-with-one-def (mul-arg0 m))
-               (evaluate-with-one-def (mul-arg1 m))))
+            (* (evaluate-with-one-def (mul-arg0 m) def)
+               (evaluate-with-one-def (mul-arg1 m) def)))
           (define (evaluate-fn-app app)
-            (if (eq? (function-application-name expr) (function-definition-name def))
+            (if (eq? (function-application-name expr)
+                     (function-definition-name def))
                (evaluate-with-one-def (subst (function-definition-param def)
                                              (function-application-arg expr)
-                                             (function-definition-body def)))
-               (evaluate-with-one-def expr)))]
+                                             (function-definition-body def))
+                                      def)
+               (error "input must not contain undefined functions: "  expr)))]
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
           [(mul? expr) (evaluate-mul expr)]
-          [(function-application? expr) (evaluate-fn-app expr)])))
+          [(function-application? expr) (evaluate-fn-app expr)]
+          [(not (numeric? expr)) (error "input must be a numeric expression: "
+                                       expr)])))
 
