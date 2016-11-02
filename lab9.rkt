@@ -143,9 +143,9 @@
            [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
                                   (subst var val (mul-arg1 expr)))]))
 
-;;***************************************************************************
+;;*******************************************************************
 ;;Problem 5
-;;***************************************************************************
+;;*******************************************************************
 
 (define-struct function-application [name arg])
 ;; An FunctionApplication is a (make-function-application name arg)
@@ -154,10 +154,38 @@
 ;;  - Expression arg: the Expression being operated on
 
 ;; Example:
-(define FN-APP1 (make-function-application 'g 2))
+(define FN-APP1 (make-function-application g 2))
 (define FN-APP2 (make-function-application 'f (make-add 1 1)))
 
-;(make-function-definition 'f 'x (make-add 3 'x))
+
+;;-------------------------------------------------------------------
+;;Problem 6
+;;-------------------------------------------------------------------
+
+(define-struct function-definition [fn param body])
+;; An FunctionDefinition is a (make-function-definition fn-name param-name arg)
+;; Interpertation:
+;;  - Symbol       fn: the name of the function being defined
+;;  - Symbol    param: the name of the function's parameter
+;;  - Expression body: the body of the function
+
+
+;;===================================================================
+;;Problem 7
+;;===================================================================
+
+;; Examples:
+(define FN1 (make-function-definition 'f 'x (make-add 3 'x)))
+
+(define FN2 (make-function-definition 'g 'x (make-mul 3 'x)))
+
+(define FN3 (make-function-definition 'h 'u (function-application 'f 'u)))
+
+(define FN4 (make-function-definition 'i 'v (make-add (make-mul 'v 'v) (make-mul 'v 'v))))
+
+(define FN5 (make-function-definition 'k 'w (make-mul (function-application 'h 'w) (function-application 'i 'w))))
+
+
 
 ;;Problem 8
 (define evaluate-with-one-def (expression functiondef)
