@@ -157,8 +157,11 @@
            [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
                                   (subst var val (mul-arg1 expr)))]
            [(function-application? expr)
-            (make-function-application (function-application-name expr)
-                                       (subst (function-application-arg)))]))
+            (make-function-application
+             (function-application-name expr)
+             (subst var
+                    val
+                    (function-application-arg expr)))]))
 
 ;;*******************************************************************
 ;;Problem 5
