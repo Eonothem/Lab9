@@ -350,8 +350,7 @@
 (check-error (evaluate-with-defs (make-function-application 'g 9)
                                     (list FN1))
              "input must not contain undefined functions: (make-function-application 'g 9)")
-(check-error (evaluate-with-defs (make-add 1
-                                              (make-function-application 'g 9))
+(check-error (evaluate-with-defs (make-add 1 (make-function-application 'g 9))
                                     (list FN1))
              "input must not contain undefined functions: (make-function-application 'g 9)")
 (check-error (evaluate-with-defs (make-function-application 'f 'x)
