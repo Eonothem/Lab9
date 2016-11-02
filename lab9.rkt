@@ -233,8 +233,6 @@
 ;;           and all instances of MulApplication replaced with the product
 ;;           of their evaluated arg0 and arg1 portions
 
-
-
 (check-expect (evaluate-with-one-def 3 FN1) 3)
 (check-expect (evaluate-with-one-def (make-add 3 4)
                                      FN1)
@@ -288,28 +286,33 @@
 ;;           MulApplications  replaced with the product of their evaluated
 ;;           arg0 and arg1 portions
 
-(define (evaluate-with-defs expr def)
+(define (evaluate-with-defs expr defs)
   (local [(define (evaluate-add a)
-            (+ (evaluate-with-one-def (add-arg0 a) def)
-               (evaluate-with-one-def (add-arg1 a) def)))
+            (+ (evaluate-with-defs (add-arg0 a) defs)
+               (evaluate-with-defs (add-arg1 a) defs)))
           (define (evaluate-mul m)
-            (* (evaluate-with-one-def (mul-arg0 m) def)
-               (evaluate-with-one-def (mul-arg1 m) def)))
+            (* (evaluate-with-defs (mul-arg0 m) defs)
+               (evaluate-with-defs (mul-arg1 m) defs)))
           (define (evaluate-fn-app app)
-            (if (eq? (function-application-name expr)
-                     (function-definition-name def))
-               (evaluate-with-one-def (subst (function-definition-param def)
-                                             (function-application-arg expr)
-                                             (function-definition-body def))
-                                      def)
-               (error "input must not contain undefined functions: "  expr)))]
+            (local [(define MATCH
+                      (ormap (λ (def)
+                               (if (eq? (function-definition-name def)
+                                        (function-application-name app))
+                                   def
+                                   #false))))]
+              (if (false? MATCH)
+                  (error "input must not contain undefined functions: "  expr)
+                  (evaluate-with-defs
+                   (subst (function-definition-param defs)
+                          (function-application-arg expr)
+                          (function-definition-body defs))
+                   defs))))]
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
           [(mul? expr) (evaluate-mul expr)]
           [(function-application? expr) (evaluate-fn-app expr)]
           [(not (numeric? expr)) (error "input must be a numeric expression: "
-                                       expr)])))
-
+                                        expr)])))
 
 
 
