@@ -303,20 +303,20 @@
                (evaluate-with-defs (mul-arg1 m) defs)))
           (define (evaluate-fn-app app)
             (local [(define MATCH
-                      (first (foldl (λ (def last)
+                      (foldl (λ (def last)
                                (cond [(function-definition? last) last]
                                      [(eq? (function-definition-name def)
                                            (function-application-name app))
                                       def]
                                    [else #false]))
                              #false
-                             defs)))]
+                             defs))]
               (if (false? MATCH)
                   (error "input must not contain undefined functions: "  expr)
                   (evaluate-with-defs
-                   (subst (function-definition-param defs)
+                   (subst (function-definition-param MATCH)
                           (function-application-arg expr)
-                          (function-definition-body defs))
+                          (function-definition-body MATCH))
                    defs))))]
     (cond [(number? expr) expr]
           [(add? expr) (evaluate-add expr)]
