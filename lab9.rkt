@@ -202,7 +202,9 @@
 
 (define FN2 (make-function-definition 'g 'x (make-mul 3 'x)))
 
-(define FN3 (make-function-definition 'h 'u (make-function-application 'f 'u)))
+(define FN3 (make-function-definition 'h 'u
+                                      (make-function-application
+                                       'f (make-mul 2 'u))))
 
 (define FN4 (make-function-definition 'i 'v (make-add (make-mul 'v 'v)
                                                       (make-mul 'v 'v))))
@@ -230,6 +232,14 @@
 ;;           replaced with the sum of their evaluated arg0 and arg1 portions,
 ;;           and all instances of MulApplications  replaced with the product
 ;;           of their evaluated arg0 and arg1 portions
+
+
+
+(check-expect (evaluate-with-one-def 3 FN1) 3)
+(check-expect (evaluate-with-one-def (make-add 3 4) FN1) 7)
+(check-expect (evaluate-with-one-def (make-mul 3 4) FN1) 12)
+(check-expect (evaluate-with-one-def (make-function-application 'f 9) FN1) 12)
+(check-expect (evaluate-with-one-def (make-function-application 'g 9) FN1) 'error)
 
 (define (evaluate-with-one-def expr def)
   (local [(define (evaluate-add a)
