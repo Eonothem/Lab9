@@ -9,16 +9,14 @@
 ;;  - Number
 ;;  - Symbol
 ;;  - (make-add Expression Expression)
-;;  - (make-mul Expression Expression)
-;;  - (make-function-application String Expression)
+;;  - (make-mul Expression Expression) 
 
 ;; Template:
 #; (define (expression-fn expr)
      (cond [(number? expr) ...]
            [(symbol? expr) ...]
            [(add? expr) ... (add-fn expr)]
-           [(mul? expr) ... (mult-fn expr)]
-           [(function-application? expr) ... (function-application-fn expr)]))
+           [(mul? expr) ... (mult-fn expr)]))
 
 (define-struct add [arg0 arg1])
 ;; An AddCall is a (make-add arg0 arg1)
@@ -142,18 +140,3 @@
                                   (subst var val (add-arg1 expr)))]
            [(mul? expr) (make-mul (subst var val (mul-arg0 expr))
                                   (subst var val (mul-arg1 expr)))]))
-
-;;
-;;Problem 5
-;;
-
-(define-struct function-application [name arg])
-;; An FunctionApplication is a (make-function-application name arg)
-;; Interpertation:
-;;  - Symbol name:    the name of the function
-;;  - Expression arg: the Expression being operated on
-
-;; Example:
-(define FN-APP1 (make-function-application g 2))
-(define FN-APP2 (make-function-application 'f (make-add 1 1)))
-
