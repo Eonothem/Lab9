@@ -244,7 +244,15 @@
                                      FN1)
               12)
 (check-error (evaluate-with-one-def (make-function-application 'g 9)
-                                    FN1))
+                                    FN1)
+             "input must not contain undefined functions: (make-function-application 'g 9)")
+(check-error (evaluate-with-one-def (make-add 1
+                                              (make-function-application 'g 9))
+                                    FN1)
+             "input must not contain undefined functions: (make-function-application 'g 9)")
+(check-error (evaluate-with-one-def (make-function-application 'f 'x)
+                                    FN1)
+             "input must be a numeric expression: 'x")
 
 (define (evaluate-with-one-def expr def)
   (local [(define (evaluate-add a)
